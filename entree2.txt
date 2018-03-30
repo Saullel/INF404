@@ -1,0 +1,3 @@
+45 - 2 ()
+
+// mal parentesee, 45 sera lue car est une eaep mais le programme ne lira pas la suite

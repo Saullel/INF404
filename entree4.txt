@@ -1,0 +1,3 @@
+()
+
+// le programme cherche une eaep, un operateur puis une autre eaep, il ne les trouve pas donc leve des erreurs syntaxiques

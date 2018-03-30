@@ -1,0 +1,3 @@
+(6 * 3) + 2
+
+// (6*3) est correctement parenthese, mais le "+2" ne sera pas lu 
