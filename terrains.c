@@ -1,7 +1,7 @@
 
 #include "terrains.h"
 
-void AfficherTerrain(int num){
+void AfficherTerrain(int numTerrain){
 
 	int i,j;
 	printf("\n");

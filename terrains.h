@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#ifdef TERRAIN
+//#ifdef TERRAIN
 int Terrain1[10][10] ={	{0,0,0,0,0,0,0,0,0,0},
 						{0,0,0,0,0,0,0,0,0,0},
 						{0,0,0,0,0,0,0,0,0,0},
@@ -11,7 +11,7 @@ int Terrain1[10][10] ={	{0,0,0,0,0,0,0,0,0,0},
 						{0,0,0,0,0,0,0,0,0,0},
 						{0,0,0,0,0,0,0,0,0,2},
 						{1,1,1,1,1,1,1,1,1,1 }};
-#endif
+//#endif
 #define LMAX 50
 /*typedef struct T{
 	int largeur;
@@ -54,7 +54,7 @@ Terrain ChargerTerrain(FILE* f){
 	return T;
 }
 
-/*ListeTerrain* ChargeurTerrains(char* fichier ){
+ListeTerrain* ChargeurTerrains(char* fichier ){
 	FILE* f=
 }
 */

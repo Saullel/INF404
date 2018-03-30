@@ -15,9 +15,12 @@
       PLUS,             // +
       MOINS,            // -
       MUL,              // *
-	 DIV,		    // /
-	 PARO,		    // (
+	   DIV,		    // /
+	  PARO,		    // (
 	 PARF,		    // )
+    IDF,          // identificateurs
+    AFF,          // =
+    SEPAFF,       // ;
       FIN_SEQUENCE,     // pseudo lexeme ajoute en fin de sequence
 	 ERREUR,		    
     } Nature_Lexeme ;

@@ -4,7 +4,7 @@
 #define TERRAIN
 
 int main(){
-	AfficherTerrain();
+	AfficherTerrain(1);
 	AfficherRegle(1);
 	return 0;
 }

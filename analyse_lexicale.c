@@ -31,6 +31,8 @@
    int est_separateur(char c ) ;
    int est_chiffre(char c ) ;
    int est_caractere(char c);
+   int est_correct_dans_nom(char c);
+   int est_nom_variable(char c);
    int est_symbole(char c ) ;
    Nature_Lexeme est_operation(Lexeme l);
    void reconnaitre_lexeme();
@@ -136,6 +138,14 @@
                            				lexeme_en_cours.nature = PARF;
                            				etat = E_FIN;
 			   						break;
+                           case '=':
+                                    lexeme_en_cours.nature = AFF;
+                                    etat = E_FIN;
+                                    break;
+                           case ';':
+                                    lexeme_en_cours.nature = SEPAFF;
+                                    etat = E_FIN;
+                                    break;
 		           				default:
 									printf("Erreur_Lexicale") ;
 				 					exit(0) ;
@@ -194,15 +204,19 @@
 			//	break;
 			
 			case E_CAR:
-				if (est_caractere(caractere_courant())) {
+				if (est_nom_variable(caractere_courant())) {
 					ajouter_caractere (lexeme_en_cours.chaine, caractere_courant()) ;
 					etat = E_CAR;
 					avancer_car();
 				} 
-				else {
-					lexeme_en_cours.nature = est_operation(lexeme_courant());
+				else if (est_separateur(caractere_courant())){
+					lexeme_en_cours.nature = IDF;
 					etat = E_FIN;
 				}
+            else {
+               lexeme_en_cours.nature = ERREUR;
+               etat = E_FIN;
+            }
 				break;
 					
 				
@@ -245,6 +259,21 @@
    int est_caractere(char c) {
       return c >= 'a' && c <= 'z' ;
    }
+
+
+   /* --------------------------------------------------------------------- */
+
+   // vaut vrai ssi c designe un caractere 
+   int est_correct_dans_nom(char c) {
+      return c == '_' ;
+   }
+
+    /* --------------------------------------------------------------------- */
+
+   // vaut vrai ssi c designe un caractere 
+   int est_nom_variable(char c) {
+      return (est_caractere(c) || est_chiffre(c) || est_correct_dans_nom(c));
+   }
    
    /* --------------------------------------------------------------------- */
 
@@ -257,6 +286,8 @@
 	 	case '/':
 		case '(':
 		case ')':
+      case '=':
+      case ';':
             return 1;
 
          default:
