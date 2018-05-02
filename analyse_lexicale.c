@@ -31,10 +31,11 @@
    int est_separateur(char c ) ;
    int est_chiffre(char c ) ;
    int est_caractere(char c);
-   int est_correct_dans_nom(char c);
-   int est_nom_variable(char c);
    int est_symbole(char c ) ;
-   Nature_Lexeme est_operation(Lexeme l);
+   int est_identificateur(char c);
+   int est_comparateur(char c);
+   Nature_Lexeme quel_comparateur(Lexeme l);
+   Nature_Lexeme est_instruction(Lexeme l);
    void reconnaitre_lexeme();
 
    /* --------------------------------------------------------------------- */
@@ -80,7 +81,7 @@
    //		soit un separateur,  soit le 1er caractere d'un lexeme
 
    void reconnaitre_lexeme() {
-   	typedef enum {E_INIT, E_ENTIER, /*E_FLOAT,*/ E_CAR, E_FIN} Etat_Automate ;
+   	typedef enum {E_INIT, E_ENTIER,E_CAR,E_COMP,E_FIN} Etat_Automate ;
      Etat_Automate etat=E_INIT;
 
 	// on commence par lire les separateurs
@@ -109,7 +110,7 @@
                     	 	etat = E_ENTIER;
 	           		} 
 					else {
-		       			if  (est_symbole(caractere_courant())) { 
+		       			if  (est_symbole(caractere_courant()) ) { 
 		        				lexeme_en_cours.ligne = numero_ligne();
                         			lexeme_en_cours.colonne = numero_colonne();
 		        				ajouter_caractere (lexeme_en_cours.chaine, caractere_courant()) ;
@@ -138,14 +139,10 @@
                            				lexeme_en_cours.nature = PARF;
                            				etat = E_FIN;
 			   						break;
-                           case '=':
-                                    lexeme_en_cours.nature = AFF;
-                                    etat = E_FIN;
-                                    break;
-                           case ';':
-                                    lexeme_en_cours.nature = SEPAFF;
-                                    etat = E_FIN;
-                                    break;
+                        case ';':
+                                       lexeme_en_cours.nature = SEPAFF;
+                                       etat = E_FIN;
+                              break;
 		           				default:
 									printf("Erreur_Lexicale") ;
 				 					exit(0) ;
@@ -154,10 +151,16 @@
 						} 
 						else if (est_caractere(caractere_courant())) {
 							lexeme_en_cours.ligne = numero_ligne();
-                     			lexeme_en_cours.colonne = numero_colonne();
+                     lexeme_en_cours.colonne = numero_colonne();
 		     				ajouter_caractere (lexeme_en_cours.chaine, caractere_courant()) ;
 							etat = E_CAR;
 						}
+                  else if(est_comparateur(caractere_courant())){
+                     lexeme_en_cours.ligne = numero_ligne();
+                     lexeme_en_cours.colonne = numero_colonne();
+                     ajouter_caractere (lexeme_en_cours.chaine, caractere_courant()) ;
+                     etat = E_COMP;
+                  }
 						else {
 				 			lexeme_en_cours.nature = ERREUR;
 				 			lexeme_en_cours.ligne = numero_ligne();
@@ -179,47 +182,47 @@
                   		etat = E_ENTIER;
                   		avancer_car ();
                	} 
-				//else if (caractere_courant() == '.') { 
-				//	ajouter_caractere (lexeme_en_cours.chaine, caractere_courant()) ;
-				//	etat = E_FLOAT;
-				//	avancer_car ();
-				//}
 				else {
                   		etat = E_FIN;
                	}
 				break ;
 			
-			//case E_FLOAT:
-			//	if (est_chiffre(caractere_courant())) { 
-		  	//		ajouter_caractere (lexeme_en_cours.chaine, caractere_courant()) ;
-               //   	lexeme_en_cours.valeur = lexeme_en_cours.valeur * 10 + 
-			//		caractere_courant() - '0';
-               //   	etat = E_FLOAT;
-               //  		avancer_car ();
-               //	} 
-			//	else if (caractere_courant() == '.') { }
-			//	else {
-               //  		etat = E_FIN;
-               //	}
-			//	break;
-			
 			case E_CAR:
-				if (est_nom_variable(caractere_courant())) {
+				if (est_identificateur(caractere_courant())) {
 					ajouter_caractere (lexeme_en_cours.chaine, caractere_courant()) ;
-					etat = E_CAR;
+               lexeme_en_cours.nature=est_instruction(lexeme_en_cours);
+               if(lexeme_en_cours.nature!=ERREUR){
+                  etat = E_FIN;
+               }
+               else {
+                  etat = E_CAR;
+               }
+					
 					avancer_car();
 				} 
-				else if (est_separateur(caractere_courant())){
+				else if (est_separateur(caractere_courant()) || est_comparateur(caractere_courant()) || est_symbole(caractere_courant())){
 					lexeme_en_cours.nature = IDF;
 					etat = E_FIN;
 				}
-            else {
-               lexeme_en_cours.nature = ERREUR;
-               etat = E_FIN;
-            }
+				else
+					{
+						printf("Erreur Lexicale: le caractere %c n'est pas reconnu\n",caractere_courant());
+						etat = E_FIN;
+
+
+					}
 				break;
 					
-				
+         case E_COMP:
+            if(est_comparateur(caractere_courant())){
+               ajouter_caractere (lexeme_en_cours.chaine, caractere_courant()) ;
+               etat = E_COMP;
+               avancer_car ();
+            }
+				else {
+               lexeme_en_cours.nature=quel_comparateur(lexeme_en_cours);
+               etat = E_FIN;
+            }
 	     	case E_FIN: 
 				break ;
 	    	} ;
@@ -257,26 +260,58 @@
 
    // vaut vrai ssi c designe un caractere 
    int est_caractere(char c) {
-      return c >= 'a' && c <= 'z' ;
-   }
-
-
-   /* --------------------------------------------------------------------- */
-
-   // vaut vrai ssi c designe un caractere 
-   int est_correct_dans_nom(char c) {
-      return c == '_' ;
-   }
-
-    /* --------------------------------------------------------------------- */
-
-   // vaut vrai ssi c designe un caractere 
-   int est_nom_variable(char c) {
-      return (est_caractere(c) || est_chiffre(c) || est_correct_dans_nom(c));
+      return ((c >= 'a' && c <= 'z') || (c>= 'A' && c <= 'Z'));
    }
    
    /* --------------------------------------------------------------------- */
+   //vaut vrai si c désigne un caractere ou un chiffre ou un _
+   int est_identificateur(char c){
+   		return (est_caractere(c) || est_chiffre(c) || c == '_');
+   }
 
+   /* --------------------------------------------------------------------- */
+   //vaut vrai si c désigne un ccomparateur
+   int est_comparateur(char c){
+          switch (c) {
+         case '=':  
+      case '!':  
+      case '<':
+      case '>':
+
+            return 1;
+
+         default:
+            return 0;
+      } 
+   }
+   
+Nature_Lexeme quel_comparateur(Lexeme l){
+   if (!strcmp(l.chaine,"=")) {
+      return AFF;
+   }
+   if (!strcmp(l.chaine,"==")) {
+      return EQ;
+   }
+   if (!strcmp(l.chaine,"!=")) {
+      return NEQ;
+   }
+   if (!strcmp(l.chaine,">")) {
+      return SUP;
+   }
+   if (!strcmp(l.chaine,">=")) {
+      return SUPEQ;
+   }
+   if (!strcmp(l.chaine,"<")) {
+      return INF;
+   }
+   if (!strcmp(l.chaine,"<=")) {
+      return INFEQ;
+   }
+   else { 
+      return ERREUR;
+   }
+}
+    /* --------------------------------------------------------------------- */
    // vaut vrai ssi c designe un caractere correspondant a un symbole arithmetique
    int est_symbole(char c)  {
       switch (c) {
@@ -286,8 +321,8 @@
 	 	case '/':
 		case '(':
 		case ')':
-      case '=':
-      case ';':
+		case ';':
+
             return 1;
 
          default:
@@ -298,7 +333,7 @@
  /* --------------------------------------------------------------------- */
 
    // vaut vrai ssi c designe une operation arithmetique
-   Nature_Lexeme est_operation(Lexeme l)  {
+   /*Nature_Lexeme est_operation(Lexeme l)  {
       if (!strcmp(l.chaine,"plus")) {
 	 	return PLUS;
 	}
@@ -314,8 +349,40 @@
 	else { printf("Erreur_Lexicale\n") ;
 			return ERREUR; }	
       
-   }
+   }*/
    
+Nature_Lexeme est_instruction(Lexeme l){
+    if (!strcmp(l.chaine,"si")) {
+      return IF;
+   }
+    if (!strcmp(l.chaine,"alors")) {
+      return THEN;
+   }
+   if (!strcmp(l.chaine,"sinon")) {
+      return ELSE;
+   }
+    if (!strcmp(l.chaine,"fin_si")) {
+      return FI;
+   }
+   if (!strcmp(l.chaine,"tant_que")) {
+      return WHILE;
+   }
+   if (!strcmp(l.chaine,"faire")) {
+      return DO;
+   }
+   if (!strcmp(l.chaine,"fin_tant_que")) {
+      return OD;
+   }
+   else { 
+      return ERREUR;
+   }
+}
+
+
+
+
+
+
    /* --------------------------------------------------------------------- */
 
    // renvoie la chaine de caracteres correspondant a la nature du lexeme
@@ -328,10 +395,14 @@
 			case DIV: return "DIV";   
 			case PARO: return "PARO"; 
 			case PARF: return "PARF"; 
+			case IDF: return "IDF"; 
+			case AFF: return "AFF"; 
+			case SEPAFF: return "SEPAFF"; 
       		case FIN_SEQUENCE: return "FIN_SEQUENCE" ;     
       		default: return "ERREUR" ;            
 	} ;
    } 
+
 
    /* --------------------------------------------------------------------- */
 
@@ -345,8 +416,8 @@
             printf("(ligne %d, ", l.ligne);
             printf("colonne %d) : ",l.colonne);
 	    printf("[") ;
-            printf("nature = %s", Nature_vers_Chaine(l.nature)) ;
-            printf(", chaine = %s, ", l.chaine) ;
+            printf("nature = %s\t", Nature_vers_Chaine(l.nature)) ;
+            printf(" chaine = %s\t ", l.chaine) ;
             switch(l.nature) {
                  case ENTIER:
                       printf("valeur = %d", l.valeur);

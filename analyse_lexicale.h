@@ -15,12 +15,26 @@
       PLUS,             // +
       MOINS,            // -
       MUL,              // *
-	   DIV,		    // /
-	  PARO,		    // (
+	 DIV,		    // /
+	 PARO,		    // (
 	 PARF,		    // )
-    IDF,          // identificateurs
     AFF,          // =
-    SEPAFF,       // ;
+    IDF,          // identificateur
+    SEPAFF,        // ;
+    IF,             // si
+    THEN,         // alors
+    ELSE,         // sinon
+    FI,           // fin_si
+    SEPINST,      // \n
+    EQ,           // ==
+    NEQ,          // !=
+    SUP,          // >
+    INF,          // <
+    SUPEQ,        // >=
+    INFEQ,        // <=
+    WHILE,        // tant_que
+    DO,           // faire
+    OD,           // fin_tant_que
       FIN_SEQUENCE,     // pseudo lexeme ajoute en fin de sequence
 	 ERREUR,		    
     } Nature_Lexeme ;

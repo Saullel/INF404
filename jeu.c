@@ -3,6 +3,7 @@
 #include "terrains.h"
 #define TERRAIN
 
+
 int main(){
 	AfficherTerrain(1);
 	AfficherRegle(1);

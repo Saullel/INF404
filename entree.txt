@@ -1,1 +1,5 @@
-5$+33
+xy=2; yy=3; 
+
+si yy!=xy
+	alors yy=yy-1; vv=2;
+fin_si
